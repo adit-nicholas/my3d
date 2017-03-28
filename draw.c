@@ -30,18 +30,25 @@ void add_box( struct matrix * edges,
   x0 = x1 = x;
   z0 = z1 = z;
   
-  for (i = 0 ; i < 4; i++){
-    if (x0 == x)
-      x1 = x + width;
+  for (i = 0 ; i < 5; i++){
+    if (x0 == x){
+      if (z0 != z1)
+	z1 = z;
+      else
+	x1 = x + width;
+    }
     else if ( z0 == z)
       z1 = z - depth;
-    else if ((x0 != x1) && (z0 != z1))
+    else
       x1 = x;
     add_edge(edges, x0, y, z0, x1 , y , z1);
-    add_edge(edges, x0, y, z0, x0, y + height, z0);
+    add_edge(edges, x0, y, z0, x0, y - height, z0);
+    add_edge(edges, x0, y - height, z0, x1 , y - height, z1);
     x0 = x1;
     z0 = z1;
   }
+  add_edge(edges,x,y,z-depth, x,y,z);
+  add_edge(edges,x, y - height, z - depth, x , y - height , z);
       
     
   
@@ -65,7 +72,13 @@ void add_box( struct matrix * edges,
 void add_sphere( struct matrix * edges, 
 		 double cx, double cy, double cz,
 		 double r, double step ) {
-  return;
+  struct matrix * p = generate_sphere(cx,cy,cz,r,step);
+  int c; 
+  for (c = 0; c < p -> lastcol; c++)
+    add_edge(edges, p -> m[0][c], p-> m[1][c], p -> m[2][c], p -> m[0][c+1], p -> m[1][c+1], p -> m[2][c+1]);
+  
+    
+
 }
 
 /*======== void generate_sphere() ==========
@@ -367,7 +380,4 @@ void draw_line(int x0, int y0, int x1, int y1, screen s, color c) {
 } //end draw_line
 
 
-int main(){
-  struct matrix * edges;
-  add_box(edges, 100, 100, 100 , 50, 200, 100);
-}
+
